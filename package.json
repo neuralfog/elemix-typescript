@@ -1,0 +1,10 @@
+{
+  "name": "root",
+  "version": "0.1.0",
+  "author": "brownhounds",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {}
+}

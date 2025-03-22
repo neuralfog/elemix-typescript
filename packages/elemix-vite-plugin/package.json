@@ -1,0 +1,27 @@
+{
+    "name": "@neuralfog/elemix-vite-plugin",
+    "version": "0.1.1",
+    "license": "MIT",
+    "author": "brownhounds",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": ["./dist/**/*"],
+    "exports": {
+        ".": "./dist/index.js"
+    },
+    "scripts": {
+        "clean": "rm -rf ./dist",
+        "clean-npm": "rm -rf ./node_modules/ && rm package-lock.json && npm i",
+        "emit-declarations": "tsc --emitDeclarationOnly --declaration --outDir ./dist",
+        "build-lib": "vite build",
+        "build": "npm run clean && npm run build-lib && npm run emit-declarations",
+        "lint": "tsc --noEmit && biome format && biome lint",
+        "release": "npm run clean && npm run build && npm publish --access public"
+    },
+    "devDependencies": {
+        "@neuralfog/biome-config": "0.1.2",
+        "@neuralfog/ts-config": "0.1.2",
+        "typescript": "5.8.2",
+        "vite": "6.2.0"
+    }
+}

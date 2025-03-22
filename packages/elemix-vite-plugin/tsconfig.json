@@ -1,0 +1,4 @@
+{
+    "extends": "@neuralfog/ts-config/index.json",
+    "include": ["."]
+}
