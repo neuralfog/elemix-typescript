@@ -1,26 +1,24 @@
 import * as ts from 'typescript';
-import { findComponentAtCursor, getAllComponents, getTokenAtPosition, isInsideHtmlTemplate } from '../utils';
+import { getAllComponents } from '@neuralfog/elemix-analaser';
+import { findComponentAtCursor, getTokenAtPosition, isInsideHtmlTemplate } from '../utils';
 
-export const autoCompleteComponentsInTemplate = (languageService: ts.LanguageService, typescript: typeof ts) => {
+export const autoCompleteComponentsInTemplate = (languageService: ts.LanguageService) => {
     const oldGetCompletionsAtPosition = languageService.getCompletionsAtPosition;
 
     languageService.getCompletionsAtPosition = (fileName, position, options) => {
         const program = languageService.getProgram();
         let prior = oldGetCompletionsAtPosition.call(languageService, fileName, position, options);
         const sourceFile = program?.getSourceFile(fileName);
-        if (sourceFile && isInsideHtmlTemplate(sourceFile, position, typescript)) {
+        if (sourceFile && isInsideHtmlTemplate(sourceFile, position)) {
             const components = getAllComponents(program);
+
             const customEntries = components.map((comp) => ({
                 name: comp.name,
-                kind: typescript.ScriptElementKind.classElement,
+                kind: ts.ScriptElementKind.classElement,
                 sortText: '0',
                 insertText: comp.slots.length ? `<${comp.name}></${comp.name}>` : `<${comp.name} />`,
-                data: {
-                    isComponent: true,
-                    name: comp.name,
-                    file: comp.file,
-                },
             }));
+
             if (prior?.entries) {
                 prior.entries.push(...customEntries);
             } else {
@@ -36,7 +34,7 @@ export const autoCompleteComponentsInTemplate = (languageService: ts.LanguageSer
     };
 };
 
-export const autoCompleteComponentProps = (languageService: ts.LanguageService, typescript: typeof ts) => {
+export const autoCompleteComponentProps = (languageService: ts.LanguageService) => {
     const oldGetCompletionsAtPosition = languageService.getCompletionsAtPosition;
 
     languageService.getCompletionsAtPosition = (fileName, position, options) => {
@@ -46,7 +44,7 @@ export const autoCompleteComponentProps = (languageService: ts.LanguageService, 
                 return oldGetCompletionsAtPosition.call(languageService, fileName, position, options);
             }
             const sourceFile = program.getSourceFile(fileName);
-            if (!sourceFile || !isInsideHtmlTemplate(sourceFile, position, typescript)) {
+            if (!sourceFile || !isInsideHtmlTemplate(sourceFile, position)) {
                 return oldGetCompletionsAtPosition.call(languageService, fileName, position, options);
             }
             const prior = oldGetCompletionsAtPosition.call(languageService, fileName, position, options);
@@ -74,7 +72,7 @@ export const autoCompleteComponentProps = (languageService: ts.LanguageService, 
             if (component?.props) {
                 const propEntries = component.props.map((prop) => ({
                     name: `:${prop.key}`,
-                    kind: typescript.ScriptElementKind.memberVariableElement,
+                    kind: ts.ScriptElementKind.memberVariableElement,
                     sortText: '0',
                     insertText: `:${prop.key}=\${}`,
                 }));

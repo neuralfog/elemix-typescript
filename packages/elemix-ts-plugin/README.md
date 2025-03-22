@@ -46,24 +46,17 @@ JSX like template syntax and Typescript checking
     - [x] Detect missing props and report an error if prop is not optional
 - [x] Props = 2nd Pass
     - [x] Type checking for props
-
----
-
-- [] So much refactoring - it has to wait - it works!! :tada:
-- [] Add constants with all diagnostic codes enum ftw
-- [] Create a factory to create diagnostic complying with an interface, could be a class, or named functions with minimal parameters
-- [] Common things that need to be shared with vite plugin:
-    - [] Diagnostics only
-    - [] Imports, props, possibly check fort multi word class for component
-    - [] Skip any autocompletion
-- [] Get rid of `isComponentDefinedInFile`
-- [] Extract common features in to a separate package
+- [x] Remove diagnostics for non existing components, that is daft!!
+- [x] So much refactoring - it has to wait - it works!! :tada:
+- [x] Common things that need to be shared with vite plugin:
+    - [x] Diagnostics only
+    - [x] Imports, props, possibly check fort multi word class for component
+    - [x] Skip any autocompletion
+- [x] Get rid of `isComponentDefinedInFile`
+- [x] Extract common features in to a separate package
 - [] Add auto completion for a component keyword: `component~`
     - [] Trigger when in first line only:
     ```
     const { line } = sourceFile.getLineAndCharacterOfPosition(position);
     if (line === 0) {
     ```
-- [] Is it worth checking for template literals node, maybe just work on the whole source text :thinking:
-    - [] This would reduce complexity a ton
-- [] Remove diagnostics for non existing components, that is daft!!

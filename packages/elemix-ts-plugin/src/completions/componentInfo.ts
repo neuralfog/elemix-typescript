@@ -1,13 +1,8 @@
 import * as ts from 'typescript';
-import {
-    findFullComponentAtCursor,
-    getAllComponents,
-    getImportPath,
-    getTokenAtPosition,
-    isInsideHtmlTemplate,
-} from '../utils';
+import { findFullComponentAtCursor, getImportPath, getTokenAtPosition, isInsideHtmlTemplate } from '../utils';
+import { getAllComponents } from '@neuralfog/elemix-analaser';
 
-export const autoCompleteComponentHover = (languageService: ts.LanguageService, typescript: typeof ts) => {
+export const autoCompleteComponentHover = (languageService: ts.LanguageService) => {
     const oldGetQuickInfoAtPosition = languageService.getQuickInfoAtPosition;
 
     languageService.getQuickInfoAtPosition = (fileName, position) => {
@@ -20,7 +15,7 @@ export const autoCompleteComponentHover = (languageService: ts.LanguageService, 
             return oldGetQuickInfoAtPosition.call(languageService, fileName, position);
         }
 
-        if (isInsideHtmlTemplate(sourceFile, position, typescript)) {
+        if (isInsideHtmlTemplate(sourceFile, position)) {
             const token = getTokenAtPosition(sourceFile, position);
             if (!token) {
                 return oldGetQuickInfoAtPosition.call(languageService, fileName, position);
@@ -61,7 +56,7 @@ export const autoCompleteComponentHover = (languageService: ts.LanguageService, 
 
                     const displayParts: ts.SymbolDisplayPart[] = [{ text: helpText, kind: 'text' }];
                     return {
-                        kind: typescript.ScriptElementKind.classElement,
+                        kind: ts.ScriptElementKind.classElement,
                         kindModifiers: 'export',
                         textSpan: {
                             start: token.getStart(),

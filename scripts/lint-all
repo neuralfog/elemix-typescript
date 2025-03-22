@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd ./packages/elemix-analyser/ && npm run lint
+cd ../../packages/elemix-ts-plugin/ && npm run lint
+cd ../../packages/elemix-vite-plugin/ && npm run lint

@@ -1,25 +1,30 @@
-import type * as ts from 'typescript';
 import type * as tsServer from 'typescript/lib/tsserverlibrary.js';
 import { autoCompleteComponentProps, autoCompleteComponentsInTemplate } from './completions/components';
 import { codeFixesComponentImports } from './code-actions/import-components';
 import { preserveComponentImports } from './diagnostics/component-imports';
 import { autoCompleteComponentHover } from './completions/componentInfo';
 import { validateProps, validatePropsTypes } from './diagnostics/component-props';
+import { componentNameDiagnostics } from './diagnostics/component-name';
+import { autoCompleteComponentTemplate } from './completions/component-template';
 
-function init({ typescript }: { typescript: typeof ts }): tsServer.server.PluginModule {
+function init(): tsServer.server.PluginModule {
     return {
         create(info: tsServer.server.PluginCreateInfo) {
             const languageService = info.languageService;
 
-            autoCompleteComponentsInTemplate(languageService, typescript);
-            autoCompleteComponentProps(languageService, typescript);
-            autoCompleteComponentHover(languageService, typescript);
+            // run ts analytics once here and cache it
 
-            preserveComponentImports(languageService, typescript);
+            autoCompleteComponentsInTemplate(languageService);
+            autoCompleteComponentProps(languageService);
+            autoCompleteComponentHover(languageService);
+            autoCompleteComponentTemplate(languageService);
+
+            preserveComponentImports(languageService);
 
             codeFixesComponentImports(languageService);
-            validateProps(languageService, typescript);
-            validatePropsTypes(languageService, typescript);
+            validateProps(languageService);
+            validatePropsTypes(languageService);
+            componentNameDiagnostics(languageService);
 
             return languageService;
         },

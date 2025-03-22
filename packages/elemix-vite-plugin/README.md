@@ -9,4 +9,3 @@
     - [x] Prevent imports from being tree shaken
         - [x] add side effect import at the end of the file `import './Foo'`
 
-- [] Ideally create 3rd party package to deal with component TS meta data, `lit` has `lit-analyser`

@@ -4,7 +4,6 @@ import {
     getTypescriptProgram,
 } from './typescript';
 import { runDiagnostics } from './diagnostics';
-import * as ts from 'typescript';
 import { transformSource } from './transform';
 
 export default function typeCheckPlugin(): Plugin {
@@ -18,7 +17,7 @@ export default function typeCheckPlugin(): Plugin {
 
         buildStart() {
             const program = getTypescriptProgram(this);
-            buildTypeScriptMetadataCache(program, ts);
+            buildTypeScriptMetadataCache(program);
             const diagnostics = runDiagnostics(program);
 
             if (diagnostics && isBuild) {
@@ -30,7 +29,7 @@ export default function typeCheckPlugin(): Plugin {
 
         handleHotUpdate() {
             const program = getTypescriptProgram(this);
-            buildTypeScriptMetadataCache(program, ts);
+            buildTypeScriptMetadataCache(program);
             runDiagnostics(program);
         },
 

@@ -1,39 +1,40 @@
 import * as ts from 'typescript';
 import { useMetaDataCache } from './cache';
+import {
+    getComponentNameDiagnopstics,
+    getMissingPropsDiagnostics,
+    getNonImportedComponentDiagnostics,
+    getPropsTypeDiagnostics,
+    preserveCompoenentImportsDiagnostics,
+} from '@neuralfog/elemix-analaser';
 
 export const runDiagnostics = (program: ts.Program): number => {
     const diagnostics = ts.getPreEmitDiagnostics(program);
     const cache = useMetaDataCache();
 
-    const filteredDiagnostics = diagnostics.filter((diag) => {
-        if (diag.code !== 6133 && diag.code !== 6192) return true;
+    const filteredDiagnostics = preserveCompoenentImportsDiagnostics(
+        diagnostics,
+        cache.usedComponents,
+    );
 
-        const fileName = diag.file?.fileName;
-        if (!cache.usedComponents.has(fileName)) return true;
+    filteredDiagnostics.push(
+        ...getNonImportedComponentDiagnostics(cache.usedComponents),
+    );
 
-        const comps = cache.usedComponents.get(fileName);
-        if (typeof diag.messageText !== 'string' || !comps) return true;
+    filteredDiagnostics.push(...getComponentNameDiagnopstics(cache.components));
 
-        for (const comp of comps) {
-            if (diag.messageText.includes(comp.name)) return false;
-        }
+    for (const sourceFile of program.getSourceFiles()) {
+        filteredDiagnostics.push(
+            ...getMissingPropsDiagnostics(cache.components, sourceFile),
+        );
 
-        return true;
-    });
-
-    for (const [_, components] of cache.usedComponents) {
-        for (const comp of components) {
-            if (comp.import) continue;
-            const diag: ts.Diagnostic = {
-                file: comp.sourceFile,
-                start: comp.start,
-                length: comp.name.length,
-                messageText: `Component <${comp.name}> is used in template but not imported.`,
-                category: ts.DiagnosticCategory.Error,
-                code: 9999,
-            };
-            filteredDiagnostics.push(diag);
-        }
+        filteredDiagnostics.push(
+            ...getPropsTypeDiagnostics(
+                cache.components,
+                sourceFile,
+                program.getTypeChecker(),
+            ),
+        );
     }
 
     for (const diagnostic of filteredDiagnostics) {

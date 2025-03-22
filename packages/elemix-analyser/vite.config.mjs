@@ -4,13 +4,13 @@ import { resolve } from 'node:path';
 export default defineConfig({
     build: {
         lib: {
-            entry: [resolve('src/index.ts')],
-            name: 'elemix-vite-plugin',
+            entry: [resolve('index.ts')],
+            name: 'elemix-analyzer',
             fileName: (_, entryName) => `${entryName}.js`,
             formats: ['cjs'],
         },
         rollupOptions: {
-            external: ['vite', 'typescript', '@neuralfog/elemix-analaser'],
+            external: ['vite', 'typescript'],
         },
     },
 });

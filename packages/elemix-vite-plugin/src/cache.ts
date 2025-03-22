@@ -1,4 +1,4 @@
-import type { ComponentInfo, UsedComponent } from './utils';
+import type { ComponentInfo, UsedComponent } from '@neuralfog/elemix-analaser';
 
 class MetadataCache {
     constructor(
@@ -8,6 +8,10 @@ class MetadataCache {
             UsedComponent[]
         > = new Map(),
     ) {}
+
+    public setUsedComponents(components: Map<string, UsedComponent[]>): void {
+        this.usedComponents = new Map([...this.usedComponents, ...components]);
+    }
 }
 
 export const cache = {

@@ -1,6 +1,6 @@
 {
-    "name": "@neuralfog/elemix-vite-plugin",
-    "version": "0.1.1",
+    "name": "@neuralfog/elemix-analaser",
+    "version": "0.1.0",
     "license": "MIT",
     "author": "brownhounds",
     "main": "dist/index.js",
@@ -18,7 +18,6 @@
         "release": "npm run clean && npm run build && npm publish --access public"
     },
     "devDependencies": {
-        "@neuralfog/elemix-analaser": "*",
         "@neuralfog/biome-config": "0.1.2",
         "@neuralfog/ts-config": "0.1.2",
         "typescript": "5.8.2",

@@ -5,14 +5,15 @@
     "author": "brownhounds",
     "main": "dist/index.js",
     "scripts": {
-        "clean": "rm -rf ./dist",
+        "clean": "rm -rf ./dist ./types",
         "build": "npm run clean && tsc -p tsconfig.json",
         "lint": "tsc --noEmit",
         "release": "npm run clean && npm run build && npm publish --access public"
     },
     "devDependencies": {
+        "@neuralfog/elemix-analaser": "*",
         "@neuralfog/biome-config": "0.1.2",
-        "@types/node": "22.13.10",
+        "@types/node": "22.13.11",
         "typescript": "5.8.2"
     }
 }

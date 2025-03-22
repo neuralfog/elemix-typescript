@@ -1,122 +1,6 @@
 import * as ts from 'typescript';
 import * as path from 'node:path';
 
-type ComponentInfo = {
-    name: string;
-    file: string;
-    props?: PropInfo[];
-    slots?: string[];
-};
-
-type PropInfo = {
-    key: string;
-    type: string;
-    typeObject: ts.Type;
-    optional: boolean;
-};
-
-export const getComponentGenericType = (node: ts.ClassDeclaration, checker: ts.TypeChecker): PropInfo[] | undefined => {
-    if (!node.heritageClauses) return undefined;
-
-    for (const heritage of node.heritageClauses) {
-        if (heritage.token === ts.SyntaxKind.ExtendsKeyword) {
-            const typeNode = heritage.types[0];
-            if (
-                ts.isExpressionWithTypeArguments(typeNode) &&
-                typeNode.typeArguments &&
-                typeNode.typeArguments.length === 1
-            ) {
-                return getTypeProperties(typeNode.typeArguments[0], checker);
-            }
-        }
-    }
-    return undefined;
-};
-
-export const getAllComponents = (program: ts.Program): ComponentInfo[] => {
-    const checker = program.getTypeChecker();
-    const components: ComponentInfo[] = [];
-
-    for (const sourceFile of program.getSourceFiles()) {
-        ts.forEachChild(sourceFile, function visit(node) {
-            if (isComponentClass(node) && node.name) {
-                components.push({
-                    name: node.name.text,
-                    file: sourceFile.fileName,
-                    props: getComponentGenericType(node, checker),
-                    slots: getComponentSlots(node, ts),
-                });
-            }
-            ts.forEachChild(node, visit);
-        });
-    }
-    return components;
-};
-
-const getComponentSlots = (node: ts.ClassDeclaration, ts: typeof import('typescript')): string[] => {
-    const slotsSet = new Set<string>();
-
-    function visit(child: ts.Node) {
-        if (ts.isTaggedTemplateExpression(child)) {
-            const templateText = extractTemplateText(child, ts);
-            if (templateText) {
-                const slotRegex = /<slot\b([^>]*)>/g;
-                let match: RegExpExecArray | null;
-                // biome-ignore lint:
-                while ((match = slotRegex.exec(templateText)) !== null) {
-                    const attributes = match[1];
-                    const nameMatch = /name\s*=\s*"([^"]+)"/.exec(attributes);
-                    if (nameMatch) {
-                        slotsSet.add(nameMatch[1]);
-                    } else {
-                        slotsSet.add('default');
-                    }
-                }
-            }
-        }
-        ts.forEachChild(child, visit);
-    }
-    visit(node);
-    return Array.from(slotsSet);
-};
-
-function getTypeProperties(typeNode: ts.TypeNode, checker: ts.TypeChecker): PropInfo[] {
-    const props: PropInfo[] = [];
-    const type = checker.getTypeFromTypeNode(typeNode);
-
-    for (const prop of type.getProperties()) {
-        // Skip properties without a declaration.
-        if (!prop.valueDeclaration) continue;
-        const propType = checker.getTypeOfSymbolAtLocation(prop, prop.valueDeclaration);
-
-        const isOptional =
-            (prop.getFlags() & ts.SymbolFlags.Optional) !== 0 ||
-            (propType.isUnion() && propType.types.some((t) => (t.flags & ts.TypeFlags.Undefined) !== 0));
-
-        props.push({
-            key: prop.getName(),
-            type: checker.typeToString(propType),
-            typeObject: propType,
-            optional: isOptional,
-        });
-    }
-    return props;
-}
-
-const isComponentClass = (node: ts.Node): node is ts.ClassDeclaration => {
-    if (!node || !ts.isClassDeclaration(node)) return false;
-    const decorators = ts.getDecorators(node);
-    return (
-        !!decorators &&
-        decorators.some((dec) => {
-            if (ts.isCallExpression(dec.expression)) {
-                return ts.isIdentifier(dec.expression.expression) && dec.expression.expression.text === 'component';
-            }
-            return false;
-        })
-    );
-};
-
 export const getTokenAtPosition = (sourceFile: ts.SourceFile, position: number): ts.Node | undefined => {
     function find(node: ts.Node): ts.Node | undefined {
         if (position >= node.getFullStart() && position < node.getEnd()) {
@@ -134,11 +18,7 @@ export const getTokenAtPosition = (sourceFile: ts.SourceFile, position: number):
     return find(sourceFile);
 };
 
-export const isInsideHtmlTemplate = (
-    sourceFile: ts.SourceFile,
-    position: number,
-    ts: typeof import('typescript'),
-): boolean => {
+export const isInsideHtmlTemplate = (sourceFile: ts.SourceFile, position: number): boolean => {
     const token = getTokenAtPosition(sourceFile, position);
     if (!token) return false;
     let node: ts.Node | undefined = token;
@@ -229,28 +109,6 @@ export const getImportPath = (currentFile: string, targetFile: string): string =
         relativePath = `./${relativePath}`;
     }
     return relativePath;
-};
-
-export const getUsedComponents = (sourceFile: ts.SourceFile, ts: typeof import('typescript')): Set<string> => {
-    const used = new Set<string>();
-    function visit(node: ts.Node) {
-        if (ts.isTaggedTemplateExpression(node)) {
-            if (ts.isIdentifier(node.tag) && node.tag.text === 'html') {
-                const text = extractTemplateText(node, ts);
-                if (text) {
-                    const regex = /<([A-Z][A-Za-z0-9]*)\b/g;
-                    let match;
-                    // biome-ignore lint:
-                    while ((match = regex.exec(text)) !== null) {
-                        used.add(match[1]);
-                    }
-                }
-            }
-        }
-        ts.forEachChild(node, visit);
-    }
-    visit(sourceFile);
-    return used;
 };
 
 export const getImportInsertionPosition = (sourceFile: ts.SourceFile): number => {

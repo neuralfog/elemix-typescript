@@ -32,10 +32,7 @@ export const getSourceFiles = (program: ts.Program): ts.SourceFile[] => {
         );
 };
 
-export const buildTypeScriptMetadataCache = (
-    program: ts.Program,
-    ts: typeof import('typescript'),
-): void => {
+export const buildTypeScriptMetadataCache = (program: ts.Program): void => {
     resetMetaDataCache();
-    gatherTypescriptMetadata(program, ts);
+    gatherTypescriptMetadata(program);
 };

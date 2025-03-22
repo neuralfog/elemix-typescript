@@ -6,5 +6,9 @@
   "workspaces": [
     "packages/*"
   ],
-  "scripts": {}
+  "scripts": {
+    "clean-all": "./scripts/clean-all",
+    "clean-npm": "rm -rf ./node_modules/ && rm package-lock.json && npm i",
+    "lint": "npm run clean-npm && npm run clean-all && ./scripts/build-all && ./scripts/lint-all"
+  }
 }
