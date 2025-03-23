@@ -1,3 +1,5 @@
 #!/bin/bash
 
 cd ./packages/elemix-analyser/ && npm run build
+cd ../../packages/elemix-ts-plugin/ && npm run build
+cd ../../packages/elemix-vite-plugin/ && npm run build

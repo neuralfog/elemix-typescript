@@ -1,6 +1,6 @@
 {
     "name": "@neuralfog/elemix-analaser",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "license": "MIT",
     "author": "brownhounds",
     "main": "dist/index.js",
