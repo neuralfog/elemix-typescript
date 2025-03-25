@@ -69,14 +69,43 @@ export const autoCompleteComponentProps = (languageService: ts.LanguageService) 
             }
             const components = getAllComponents(program);
             const component = components.find((c) => c.name === componentName);
-            if (component?.props) {
+            if (component.props.length) {
+                const propEntriesString = component.props.map((prop) => ({
+                    name: `:${prop.key}~string`,
+                    kind: ts.ScriptElementKind.memberVariableElement,
+                    sortText: '3',
+                    insertText: `:${prop.key}=\"\${''}\"`,
+                }));
+                const propEntriesTrue = component.props.map((prop) => ({
+                    name: `:${prop.key}~true`,
+                    kind: ts.ScriptElementKind.memberVariableElement,
+                    sortText: '2',
+                    insertText: `:${prop.key}=\"\${true}\"`,
+                }));
+                const propEntriesFalse = component.props.map((prop) => ({
+                    name: `:${prop.key}~false`,
+                    kind: ts.ScriptElementKind.memberVariableElement,
+                    sortText: '1',
+                    insertText: `:${prop.key}=\"\${false}\"`,
+                }));
                 const propEntries = component.props.map((prop) => ({
                     name: `:${prop.key}`,
                     kind: ts.ScriptElementKind.memberVariableElement,
                     sortText: '0',
-                    insertText: `:${prop.key}=\${}`,
+                    insertText: `:${prop.key}=\"\${}\"`,
                 }));
-                prior.entries.push(...propEntries);
+
+                prior.entries.push(...propEntriesString, ...propEntries, ...propEntriesFalse, ...propEntriesTrue);
+            }
+            if (component.emits.length) {
+                const emitsEntries = component.emits.map((emit) => ({
+                    name: `@emits:${emit.key}`,
+                    kind: ts.ScriptElementKind.memberVariableElement,
+                    sortText: '0',
+                    insertText: `@emits:${emit.key}=\"\${}\"`,
+                }));
+
+                prior.entries.push(...emitsEntries);
             }
             return prior;
         } catch (error) {

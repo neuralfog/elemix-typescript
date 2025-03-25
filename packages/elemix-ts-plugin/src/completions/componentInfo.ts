@@ -40,17 +40,29 @@ export const autoCompleteComponentHover = (languageService: ts.LanguageService) 
                 const component = components.find((c) => c.name === componentName);
                 if (component) {
                     let helpText = `(alias) class ${component.name}\n\n`;
-                    if (component.props) {
-                        helpText += 'Props:\n';
+
+                    if (component.props.length) {
+                        helpText += 'type Props = {\n';
                         for (const prop of component.props) {
-                            helpText += `  • ${prop.key}${prop.optional ? '?' : ''}: ${prop.type}\n`;
+                            helpText += `  ${prop.key}: ${prop.type}\n`;
                         }
+                        helpText += '}\n';
                     }
-                    if (component?.slots.length) {
-                        helpText += 'Slots:\n';
+
+                    if (component.emits.length) {
+                        helpText += '\ntype Emits = {\n';
+                        for (const emit of component.emits) {
+                            helpText += `  ${emit.key}: ${emit.type}\n`;
+                        }
+                        helpText += '}\n';
+                    }
+
+                    if (component.slots.length) {
+                        helpText += '\nSlots:\n';
                         for (const slot of component.slots) {
                             helpText += `  • ${slot}\n`;
                         }
+                        helpText += '\n';
                     }
                     helpText += `\nimport { ${component.name} } from '${getImportPath(fileName, component.file)}';`;
 

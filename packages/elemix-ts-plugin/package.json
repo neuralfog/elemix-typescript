@@ -1,17 +1,17 @@
 {
     "name": "@neuralfog/elemix-ts-plugin",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "license": "MIT",
     "author": "brownhounds",
     "main": "dist/index.js",
     "scripts": {
         "clean": "rm -rf ./dist ./types",
         "build": "npm run clean && tsc -p tsconfig.json",
-        "lint": "tsc --noEmit",
+        "lint": "tsc --noEmit && biome format && biome lint",
         "release": "npm run clean && npm run build && npm publish --access public"
     },
     "peerDependencies": {
-        "@neuralfog/elemix-analaser": "0.2.0"
+        "@neuralfog/elemix-analaser": "0.2.1"
     },
     "devDependencies": {
         "@neuralfog/biome-config": "0.1.2",

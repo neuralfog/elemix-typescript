@@ -2,6 +2,7 @@ import * as ts from 'typescript';
 import { useMetaDataCache } from './cache';
 import {
     getComponentNameDiagnopstics,
+    getEmitsTypeDiagnostics,
     getMissingPropsDiagnostics,
     getNonImportedComponentDiagnostics,
     getPropsTypeDiagnostics,
@@ -30,6 +31,14 @@ export const runDiagnostics = (program: ts.Program): number => {
 
         filteredDiagnostics.push(
             ...getPropsTypeDiagnostics(
+                cache.components,
+                sourceFile,
+                program.getTypeChecker(),
+            ),
+        );
+
+        filteredDiagnostics.push(
+            ...getEmitsTypeDiagnostics(
                 cache.components,
                 sourceFile,
                 program.getTypeChecker(),

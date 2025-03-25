@@ -12,7 +12,8 @@ export type ComponentInfo = {
     name: string;
     file: string;
     start: number;
-    props?: PropInfo[];
+    props: PropInfo[];
+    emits: PropInfo[];
     slots?: string[];
     isMultiword: boolean;
     isDuplicated: boolean;
@@ -132,7 +133,8 @@ export const getAllComponents = (program: ts.Program): ComponentInfo[] => {
                     name: node.name.text,
                     start: node.name.getStart(),
                     file: sourceFile.fileName,
-                    props: getComponentGenericType(node, checker),
+                    props: getComponentGenericType(node, checker, 0),
+                    emits: getComponentGenericType(node, checker, 1),
                     slots: getComponentSlots(node, ts),
                     isMultiword: isComponentNameMultiword(node.name.text),
                     isDuplicated: false,
@@ -219,22 +221,25 @@ const isComponentClass = (node: ts.Node): node is ts.ClassDeclaration => {
 export const getComponentGenericType = (
     node: ts.ClassDeclaration,
     checker: ts.TypeChecker,
-): PropInfo[] | undefined => {
-    if (!node.heritageClauses) return undefined;
+    typeArgumentsIndex: number,
+): PropInfo[] => {
+    if (!node.heritageClauses) return [];
 
     for (const heritage of node.heritageClauses) {
         if (heritage.token === ts.SyntaxKind.ExtendsKeyword) {
             const typeNode = heritage.types[0];
             if (
                 ts.isExpressionWithTypeArguments(typeNode) &&
-                typeNode.typeArguments &&
-                typeNode.typeArguments.length === 1
+                typeNode.typeArguments
             ) {
-                return getTypeProperties(typeNode.typeArguments[0], checker);
+                return getTypeProperties(
+                    typeNode.typeArguments[typeArgumentsIndex],
+                    checker,
+                );
             }
         }
     }
-    return undefined;
+    return [];
 };
 
 export const getTypeProperties = (

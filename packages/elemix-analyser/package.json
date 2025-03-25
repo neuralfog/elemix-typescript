@@ -1,6 +1,6 @@
 {
     "name": "@neuralfog/elemix-analaser",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "license": "MIT",
     "author": "brownhounds",
     "main": "dist/index.js",
@@ -11,16 +11,13 @@
     },
     "scripts": {
         "clean": "rm -rf ./dist",
-        "emit-declarations": "tsc --emitDeclarationOnly --declaration --outDir ./dist",
-        "build-lib": "vite build",
-        "build": "npm run clean && npm run build-lib && npm run emit-declarations",
+        "build": "npm run clean && tsc -p tsconfig.json",
         "lint": "tsc --noEmit && biome format && biome lint",
         "release": "npm run clean && npm run build && npm publish --access public"
     },
     "devDependencies": {
         "@neuralfog/biome-config": "0.1.2",
         "@neuralfog/ts-config": "0.1.2",
-        "typescript": "5.8.2",
-        "vite": "6.2.0"
+        "typescript": "5.8.2"
     }
 }

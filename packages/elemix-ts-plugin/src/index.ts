@@ -3,7 +3,7 @@ import { autoCompleteComponentProps, autoCompleteComponentsInTemplate } from './
 import { codeFixesComponentImports } from './code-actions/import-components';
 import { preserveComponentImports } from './diagnostics/component-imports';
 import { autoCompleteComponentHover } from './completions/componentInfo';
-import { validateProps, validatePropsTypes } from './diagnostics/component-props';
+import { validateEmitsTypes, validateProps, validatePropsTypes } from './diagnostics/component-props';
 import { componentNameDiagnostics } from './diagnostics/component-name';
 import { autoCompleteComponentTemplate } from './completions/component-template';
 
@@ -11,8 +11,6 @@ function init(): tsServer.server.PluginModule {
     return {
         create(info: tsServer.server.PluginCreateInfo) {
             const languageService = info.languageService;
-
-            // run ts analytics once here and cache it
 
             autoCompleteComponentsInTemplate(languageService);
             autoCompleteComponentProps(languageService);
@@ -24,6 +22,7 @@ function init(): tsServer.server.PluginModule {
             codeFixesComponentImports(languageService);
             validateProps(languageService);
             validatePropsTypes(languageService);
+            validateEmitsTypes(languageService);
             componentNameDiagnostics(languageService);
 
             return languageService;
