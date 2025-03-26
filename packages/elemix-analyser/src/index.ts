@@ -128,7 +128,7 @@ export const getAllComponents = (program: ts.Program): ComponentInfo[] => {
 
     for (const sourceFile of program.getSourceFiles()) {
         ts.forEachChild(sourceFile, function visit(node) {
-            if (isComponentClass(node) && node.name) {
+            if (isComponentClass(node, checker) && node.name) {
                 components.push({
                     name: node.name.text,
                     start: node.name.getStart(),
@@ -201,21 +201,35 @@ const getComponentSlots = (
     return Array.from(slotsSet);
 };
 
-const isComponentClass = (node: ts.Node): node is ts.ClassDeclaration => {
+const isComponentClass = (
+    node: ts.Node,
+    typeChecker: ts.TypeChecker,
+): node is ts.ClassDeclaration => {
     if (!node || !ts.isClassDeclaration(node)) return false;
-    const decorators = ts.getDecorators(node);
-    return (
-        !!decorators &&
-        decorators.some((dec) => {
-            if (ts.isCallExpression(dec.expression)) {
-                return (
-                    ts.isIdentifier(dec.expression.expression) &&
-                    dec.expression.expression.text === 'component'
-                );
-            }
-            return false;
-        })
+    if (!node.heritageClauses) return false;
+
+    const extendsClause = node.heritageClauses.find(
+        (hc) => hc.token === ts.SyntaxKind.ExtendsKeyword,
     );
+    if (!extendsClause || extendsClause.types.length === 0) return false;
+
+    const baseTypeExpr = extendsClause.types[0].expression;
+    if (!ts.isIdentifier(baseTypeExpr)) return false;
+
+    let symbol = typeChecker.getSymbolAtLocation(baseTypeExpr);
+    if (!symbol) return false;
+
+    if (symbol.flags & ts.SymbolFlags.Alias) {
+        symbol = typeChecker.getAliasedSymbol(symbol);
+    }
+
+    const declarations = symbol.getDeclarations();
+    if (!declarations) return false;
+
+    return declarations.some((decl) => {
+        const sourceFile = decl.getSourceFile();
+        return sourceFile.fileName.includes('@neuralfog/elemix');
+    });
 };
 
 export const getComponentGenericType = (
