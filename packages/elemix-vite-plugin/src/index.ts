@@ -16,6 +16,7 @@ export default function typeCheckPlugin(): Plugin {
         },
 
         buildStart() {
+            console.log('[elemix-vite-plugin]: Build Start...');
             const program = getTypescriptProgram(this);
             buildTypeScriptMetadataCache(program);
             const diagnostics = runDiagnostics(program);
@@ -28,12 +29,14 @@ export default function typeCheckPlugin(): Plugin {
         },
 
         handleHotUpdate() {
+            console.log('[elemix-vite-plugin]: HMR...');
             const program = getTypescriptProgram(this);
             buildTypeScriptMetadataCache(program);
             runDiagnostics(program);
         },
 
         transform(code, id) {
+            console.log('[elemix-vite-plugin]: Transform...');
             if (!id.endsWith('.ts')) return code;
             return transformSource(id, code);
         },

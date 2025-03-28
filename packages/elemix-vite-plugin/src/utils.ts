@@ -24,3 +24,16 @@ export const camelToKebabCase = (input: string): string => {
         .map((x) => x.toLowerCase())
         .join('-');
 };
+
+export const getMatchingKey = (
+    file: string,
+    keys: (string | undefined)[],
+): string | undefined => {
+    for (const key of keys) {
+        if (key === undefined) continue;
+        if (file.endsWith(key)) {
+            return key;
+        }
+    }
+    return;
+};

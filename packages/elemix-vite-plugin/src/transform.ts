@@ -1,14 +1,18 @@
 import { useMetaDataCache } from './cache';
-import { camelToKebabCase } from './utils';
+import { camelToKebabCase, getMatchingKey } from './utils';
 
 export const transformSource = (file: string, source: string): string => {
     let src = source;
 
     const { usedComponents } = useMetaDataCache();
 
-    if (!usedComponents.has(file)) return source;
+    const keys = Array.from(usedComponents.keys());
+    const matchingKey = getMatchingKey(file, keys);
 
-    const components = usedComponents.get(file)?.filter((cmp) => cmp.import);
+    const components = matchingKey
+        ? usedComponents.get(matchingKey)?.filter((cmp) => cmp.import)
+        : undefined;
+
     if (!components) return src;
 
     const uniqueComponents = [
